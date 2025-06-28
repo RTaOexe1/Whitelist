@@ -1,5 +1,5 @@
 -- 📦 CONFIG
-_G.WebhookURL = "https://discord.com/api/webhooks/1264293481216610461/gnjmV3KrnLLmnVfz0qwh0JMUdOP44bhki2aaja_XjkA-UsyalWUxLgHjySZdNZbbVcUK" -- ใส่ webhook ของคุณ
+_G.WebhookURL = "https://discord.com/api/webhooks/1277264390210453526/uln2Y6QlG5wN6dPVscdN8hAaBv37WuRXNYTCNANS8dWg4uRHTiNSegcsJxaUdV6Fng69" -- ใส่ webhook ของคุณ
 _G.Enabled = true
 _G.Layout = {
     ["ROOT/SeedStock/Stocks"] = { title = "🌱 SEEDS STOCK", color = 65280 },
