@@ -1,12 +1,31 @@
 -- 📦 CONFIG
-_G.WebhookURL = "https://discord.com/api/webhooks/1264293481216610461/gnjmV3KrnLLmnVfz0qwh0JMUdOP44bhki2aaja_XjkA-UsyalWUxLgHjySZdNZbbVcUK" -- ใส่ webhook ของคุณ
 _G.Enabled = true
 _G.Layout = {
-    ["ROOT/SeedStock/Stocks"] = { title = "🌱 SEEDS STOCK", color = 65280 },
-    ["ROOT/GearStock/Stocks"] = { title = "🛠️ GEAR STOCK", color = 16753920 },
-    ["ROOT/PetEggStock/Stocks"] = { title = "🥚 EGG STOCK", color = 16776960 },
-    ["ROOT/CosmeticStock/ItemStocks"] = { title = "🎨 COSMETIC STOCK", color = 16737792 },
-    ["ROOT/EventShopStock/Stocks"] = { title = "🎁 EVENT STOCK", color = 10027263 }
+    ["ROOT/SeedStock/Stocks"] = {
+        title = "🌱 SEEDS STOCK",
+        color = 65280,
+        webhook = "https://discord.com/api/webhooks/1388574453847298138/Gnuh0k2HjsLpxNuvZT6fnO3yafRYZ2sTK3LeKgJEkrpq1fr9kN_H6dXv3c2eRnU4qo98"
+    },
+    ["ROOT/PetEggStock/Stocks"] = {
+        title = "🥚 EGG STOCK",
+        color = 16776960,
+        webhook = "https://discord.com/api/webhooks/1388574964629635072/4ctVFDUBW0caH0L9dSOx3dPCxyH48nPY7O2uAEm7D8xUDkvHRfuOAdKrtJQo7Kf7M-t4"
+    },
+    ["ROOT/GearStock/Stocks"] = {
+        title = "🛠️ GEAR STOCK",
+        color = 16753920,
+        webhook = "https://discord.com/api/webhooks/1388575214421544961/tSJoMnsGcoG2KIEFuVfmpWjsbgD1npg8aivX6TJqmKuGBt7FNjAoXCXlXdYxeXwkg5HA"
+    },
+    ["ROOT/CosmeticStock/ItemStocks"] = {
+        title = "🎨 COSMETIC STOCK",
+        color = 16737792,
+        webhook = "https://discord.com/api/webhooks/1388575549919854612/deq8UA0uu_7rIario0ZbKniJClY8A_dYeRuSdNocQD0auPrzX0pjgP-VoGUKNPLbKW7v"
+    },
+    ["ROOT/EventShopStock/Stocks"] = {
+        title = "🎁 EVENT STOCK",
+        color = 10027263,
+        webhook = "https://discord.com/api/webhooks/1388575755058810971/aaVAXtLx6MzX29lVpDtLWBQdZ1-jkWGiAfJ90ClLahrDkBSXPvVMMq7xitU0X1wO9f7T"
+    }
 }
 
 -- 📡 SERVICES
@@ -32,10 +51,10 @@ local function GetStockString(stock)
     return s
 end
 
--- 📤 ส่ง webhook แยก embed ต่อหมวด
-local function SendSingleEmbed(title, bodyText, color)
+-- 📤 ส่ง webhook พร้อม log
+local function SendSingleEmbed(title, bodyText, color, webhookUrl)
     if not _G.Enabled or not requestFunc then return end
-    if bodyText == "" then return end
+    if bodyText == "" or not webhookUrl then return end
 
     local body = {
         embeds = {{
@@ -49,12 +68,20 @@ local function SendSingleEmbed(title, bodyText, color)
         }}
     }
 
-    requestFunc({
-        Url = _G.WebhookURL,
-        Method = "POST",
-        Headers = {["Content-Type"] = "application/json"},
-        Body = HttpService:JSONEncode(body)
-    })
+    local success, result = pcall(function()
+        return requestFunc({
+            Url = webhookUrl,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = HttpService:JSONEncode(body)
+        })
+    end)
+
+    if success and result and (result.StatusCode == 200 or result.StatusCode == 204) then
+        print("[📤] ส่ง " .. title .. " ไปยัง Webhook เรียบร้อย")
+    else
+        warn("[❌] ส่ง " .. title .. " ไม่สำเร็จ: " .. tostring(result and result.StatusCode or "Unknown Error"))
+    end
 end
 
 -- 🧩 ค้นหา packet ที่ต้องการจาก data
@@ -76,10 +103,10 @@ DataStream.OnClientEvent:Connect(function(eventType, profile, data)
         if stockData then
             local stockStr = GetStockString(stockData)
             if stockStr ~= "" then
-                SendSingleEmbed(layout.title, stockStr, layout.color)
+                SendSingleEmbed(layout.title, stockStr, layout.color, layout.webhook)
             end
         end
     end
 end)
 
-print("[✅] Stock Checker พร้อมทำงาน (แบบแยก Embed)")
+print("[✅] Stock Checker พร้อมทำงาน (แบบแยก Webhook + Log)")
