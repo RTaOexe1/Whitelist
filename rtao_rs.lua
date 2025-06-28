@@ -1,11 +1,12 @@
 -- 📦 CONFIG
-_G.WebhookURL = "https://discord.com/api/webhooks/1277264390210453526/uln2Y6QlG5wN6dPVscdN8hAaBv37WuRXNYTCNANS8dWg4uRHTiNSegcsJxaUdV6Fng69" -- ใส่ webhook ของคุณ
+_G.WebhookURL = "https://discord.com/api/webhooks/1264293481216610461/gnjmV3KrnLLmnVfz0qwh0JMUdOP44bhki2aaja_XjkA-UsyalWUxLgHjySZdNZbbVcUK" -- ใส่ webhook ของคุณ
 _G.Enabled = true
 _G.Layout = {
     ["ROOT/SeedStock/Stocks"] = { title = "🌱 SEEDS STOCK", color = 65280 },
     ["ROOT/GearStock/Stocks"] = { title = "🛠️ GEAR STOCK", color = 16753920 },
     ["ROOT/PetEggStock/Stocks"] = { title = "🥚 EGG STOCK", color = 16776960 },
-    ["ROOT/CosmeticStock/ItemStocks"] = { title = "🎨 COSMETIC STOCK", color = 16737792 }
+    ["ROOT/CosmeticStock/ItemStocks"] = { title = "🎨 COSMETIC STOCK", color = 16737792 },
+    ["ROOT/EventShopStock/Stocks"] = { title = "🎁 EVENT STOCK", color = 10027263 }
 }
 
 -- 📡 SERVICES
@@ -33,16 +34,8 @@ end
 
 -- 📤 ส่ง webhook แยก embed ต่อหมวด
 local function SendSingleEmbed(title, bodyText, color)
-    if not _G.Enabled or not requestFunc then
-        print("[⚠️] Webhook ส่งไม่ได้")
-        return
-    end
-    if bodyText == "" then
-        print("[ℹ️] Stock ว่าง ไม่ส่ง:", title)
-        return
-    end
-
-    print("[📤] กำลังส่ง:", title)
+    if not _G.Enabled or not requestFunc then return end
+    if bodyText == "" then return end
 
     local body = {
         embeds = {{
@@ -50,7 +43,9 @@ local function SendSingleEmbed(title, bodyText, color)
             description = bodyText,
             color = color,
             timestamp = DateTime.now():ToIsoDate(),
-            footer = { text = "Grow a Garden Stock Bot (Mobile)" }
+            footer = {
+                text = "Grow a Garden Stock Bot (Mobile)"
+            }
         }}
     }
 
@@ -73,23 +68,18 @@ end
 
 -- 📥 รับ event และส่งรายงาน
 DataStream.OnClientEvent:Connect(function(eventType, profile, data)
-    print("[📡] ได้รับ Event:", eventType, profile)
-
     if eventType ~= "UpdateData" then return end
-    if not profile:find(LocalPlayer.Name) then
-        print("[⚠️] Profile ไม่ตรงกับผู้เล่น:", profile)
-        return
-    end
+    if not profile:find(LocalPlayer.Name) then return end
 
     for path, layout in pairs(_G.Layout) do
         local stockData = GetPacket(data, path)
         if stockData then
             local stockStr = GetStockString(stockData)
-            SendSingleEmbed(layout.title, stockStr, layout.color)
-        else
-            print("[❌] ไม่พบข้อมูล:", path)
+            if stockStr ~= "" then
+                SendSingleEmbed(layout.title, stockStr, layout.color)
+            end
         end
     end
 end)
 
-print("[✅] Stock Checker ทำงานแล้ว (ไม่มี Event Stock)")
+print("[✅] Stock Checker พร้อมทำงาน (แบบแยก Embed)")
