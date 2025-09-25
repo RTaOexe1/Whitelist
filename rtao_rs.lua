@@ -53,27 +53,27 @@ end
 local function runRemoteScript(url)
     local ok,res = pcall(function() return game:HttpGet(url, true) end)
     if not ok or type(res) ~= "string" then
-        warn("[RemoteLoad] HttpGet failed:", res)
+        warn("HttpGet failed:", res)
         return
     end
     local fn, err
     if loadstring then fn,err = loadstring(res) else fn,err = load(res) end
     if not fn then
-        warn("[RemoteLoad] Load error:", err)
+        warn("Load error:", err)
         return
     end
     local ok2, runErr = pcall(fn)
     if not ok2 then
-        warn("[RemoteLoad] Runtime error:", runErr)
+        warn("Runtime error:", runErr)
         return
     end
-    print("[RemoteLoad] Script loaded successfully")
+    print("Script loaded successfully")
 end
 task.spawn(function()
     wait(GRACE_SECONDS)
     local key = getKey()
     if not validateKey(key) then
-        player:Kick("Key invalid or expired (client-side).")
+        player:Kick("Key invalid or expired.")
         return
     end
 
